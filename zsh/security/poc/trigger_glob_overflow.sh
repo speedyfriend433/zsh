@@ -4,7 +4,7 @@
 # that causes the accumulated path to exceed PATH_MAX (4096).
 set -euo pipefail
 
-ZSH_BIN="${1:?usage: trigger_glob_overflow.sh /path/to/zsh}"
+ZSH_BIN="${1:-$(command -v zsh 2>/dev/null || echo /bin/zsh)}"
 WORK=/tmp/glob_overflow_test
 trap 'rm -rf "$WORK"' EXIT
 mkdir -p "$WORK"

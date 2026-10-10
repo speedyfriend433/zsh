@@ -11,7 +11,7 @@
 # Must be run as root. Self-cleaning.
 set -euo pipefail
 
-ZSH_BIN="${1:?usage: finding4_histfile_poc.sh /path/to/built/zsh}"
+ZSH_BIN="${1:-$(command -v zsh 2>/dev/null || echo /bin/zsh)}"
 WORK=/tmp/finding4_poc
 SUID_ZSH="$WORK/zsh-suid"
 VICTIM_HOME="$WORK/victim_home"

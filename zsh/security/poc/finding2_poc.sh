@@ -14,7 +14,7 @@
 #                          for privileged scripts), THEN exits            -> .zlogout fires
 set -euo pipefail
 
-ZSH_BIN="${1:?usage: finding2_poc.sh /path/to/built/zsh}"
+ZSH_BIN="${1:-$(command -v zsh 2>/dev/null || echo /bin/zsh)}"
 VICTIM_DIR=/tmp/finding2_poc_home
 PROOF="$VICTIM_DIR/fired.txt"
 

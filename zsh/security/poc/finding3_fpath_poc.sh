@@ -13,7 +13,7 @@
 # Must be run as root (to create the setuid binary). Self-cleaning.
 set -euo pipefail
 
-ZSH_BIN="${1:?usage: finding3_fpath_poc.sh /path/to/built/zsh}"
+ZSH_BIN="${1:-$(command -v zsh 2>/dev/null || echo /bin/zsh)}"
 WORK=/tmp/finding3_poc
 SUID_ZSH="$WORK/zsh-suid"
 EVIL_FPATH="$WORK/evil_fpath"
