@@ -6,7 +6,7 @@
 # The EXPLOIT section runs entirely as uid=31337 with NO sudo.
 set -euo pipefail
 
-ZSH_SRC="${1:-/home/user/zsh/zsh/Src/zsh}"
+ZSH_SRC="${1:-$(command -v zsh 2>/dev/null || echo /bin/zsh)}"
 WORK=/tmp/rce_minimal_$$
 
 cleanup() {
