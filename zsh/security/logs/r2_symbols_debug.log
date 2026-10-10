@@ -1,41 +1,64 @@
-[2K========================================
+===================================================
+ radare2 debug: zsh FPATH poisoning exploit
+===================================================
+========================================
  SYMBOL RESOLUTION
 ========================================
 0x5555555a2205   36 1071         sym.getfpfunc
+0x5555555bd373   66 2439         sym.setupvals
 0x5555555b8474  102 2508         sym.readhistfile
 0x5555555b8f86  149 3261         sym.savehistfile
-0x5555555bd373   66 2439         sym.setupvals
-=== SET BREAKPOINTS ===
-=== BREAKPOINT LIST ===
+========================================
+ BREAKPOINTS
+========================================
 0x5555555bd373 - 0x5555555bd374 1 --x sw break enabled valid cmd="" cond="" name="sym.setupvals" module="/home/user/zsh/zsh/Src/zsh"
 0x5555555a2205 - 0x5555555a2206 1 --x sw break enabled valid cmd="" cond="" name="sym.getfpfunc" module="/home/user/zsh/zsh/Src/zsh"
-0x5555555b8474 - 0x5555555b8475 1 --x sw break enabled valid cmd="" cond="" name="sym.readhistfile" module="/home/user/zsh/zsh/Src/zsh"
 ========================================
- RUN TO FIRST BREAKPOINT
+ REOPEN WITH ARGS: zsh -p run.zsh
+========================================
+child received signal 9
+File dbg:///home/user/zsh/zsh/Src/zsh -p /tmp/r2_exploit/run.zsh reopened in read-write mode
+========================================
+ dc [1]: RUN
 ========================================
 hit breakpoint at: 0x5555555bd373
 --- BREAKPOINT HIT 1 ---
+rip:
 0x5555555bd373
+function:
 sym.setupvals
-0  0x5555555bd373     sp: 0x0                 0    [sym.setupvals]  rip sym.init_term+1184
+registers:
+0x00000000
+0x7fffffffcf5f
 ========================================
- CONTINUE TO NEXT BREAKPOINT
+ dc [2]: CONTINUE
 ========================================
 hit breakpoint at: 0x5555555a2205
 --- BREAKPOINT HIT 2 ---
+rip:
 0x5555555a2205
+function:
 sym.getfpfunc
-0  0x5555555a2205     sp: 0x0                 0    [sym.getfpfunc]  rip sym.runshfunc+1447
+registers:
+0x555555716bd0
+0x7fffffffaf50
 ========================================
- CONTINUE TO NEXT BREAKPOINT
+ dc [3]: CONTINUE (exploit fires)
 ========================================
 FPATH_EXPLOIT: code execution achieved
-(31855) Created process 31858
---- BREAKPOINT HIT 3 ---
-0x7ffff7cee1a7
-0  0x7ffff7cee1a7     sp: 0x0                 0    [??]  rcx map.unk0.rw_-1570741849
+(32235) Created process 32236
 ========================================
- CONTINUE TO EXPLOIT EXECUTION
+ dc [4]: CONTINUE
 ========================================
-[+] SIGNAL 17 errno=0 addr=0x00007c72 code=1 si_pid=31858 ret=0
+[+] SIGNAL 17 errno=0 addr=0x00007dec code=1 si_pid=32236 ret=0
 [+] signal 17 aka SIGCHLD received 0 (Child)
+========================================
+ SESSION COMPLETE
+========================================
+
+========================================
+ DIRECT RUN (same binary, same FPATH)
+========================================
+FPATH_EXPLOIT: code execution achieved
+  uid=0 euid=0
+uid=0(root) gid=0(root) groups=0(root)
