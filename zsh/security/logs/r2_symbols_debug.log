@@ -1,0 +1,41 @@
+[2K========================================
+ SYMBOL RESOLUTION
+========================================
+0x5555555a2205   36 1071         sym.getfpfunc
+0x5555555b8474  102 2508         sym.readhistfile
+0x5555555b8f86  149 3261         sym.savehistfile
+0x5555555bd373   66 2439         sym.setupvals
+=== SET BREAKPOINTS ===
+=== BREAKPOINT LIST ===
+0x5555555bd373 - 0x5555555bd374 1 --x sw break enabled valid cmd="" cond="" name="sym.setupvals" module="/home/user/zsh/zsh/Src/zsh"
+0x5555555a2205 - 0x5555555a2206 1 --x sw break enabled valid cmd="" cond="" name="sym.getfpfunc" module="/home/user/zsh/zsh/Src/zsh"
+0x5555555b8474 - 0x5555555b8475 1 --x sw break enabled valid cmd="" cond="" name="sym.readhistfile" module="/home/user/zsh/zsh/Src/zsh"
+========================================
+ RUN TO FIRST BREAKPOINT
+========================================
+hit breakpoint at: 0x5555555bd373
+--- BREAKPOINT HIT 1 ---
+0x5555555bd373
+sym.setupvals
+0  0x5555555bd373     sp: 0x0                 0    [sym.setupvals]  rip sym.init_term+1184
+========================================
+ CONTINUE TO NEXT BREAKPOINT
+========================================
+hit breakpoint at: 0x5555555a2205
+--- BREAKPOINT HIT 2 ---
+0x5555555a2205
+sym.getfpfunc
+0  0x5555555a2205     sp: 0x0                 0    [sym.getfpfunc]  rip sym.runshfunc+1447
+========================================
+ CONTINUE TO NEXT BREAKPOINT
+========================================
+FPATH_EXPLOIT: code execution achieved
+(31855) Created process 31858
+--- BREAKPOINT HIT 3 ---
+0x7ffff7cee1a7
+0  0x7ffff7cee1a7     sp: 0x0                 0    [??]  rcx map.unk0.rw_-1570741849
+========================================
+ CONTINUE TO EXPLOIT EXECUTION
+========================================
+[+] SIGNAL 17 errno=0 addr=0x00007c72 code=1 si_pid=31858 ret=0
+[+] signal 17 aka SIGCHLD received 0 (Child)
