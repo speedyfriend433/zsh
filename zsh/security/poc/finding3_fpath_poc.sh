@@ -10,7 +10,11 @@
 #   1. FPATH is imported from the environment in PRIVILEGED mode (no PM_DONTIMPORT_SUID)
 #   2. Autoloading from the attacker-controlled FPATH works during PRIVILEGED execution
 #
-# Must be run as root (to create the setuid binary). Self-cleaning.
+# NOTE: Root is needed ONLY for test setup (creating a setuid binary and test user).
+# The actual attack runs entirely as the unprivileged user via `su`.
+# On a real system, zsh is already setuid and users already exist.
+#
+# Must be run as root for test setup. Self-cleaning.
 set -euo pipefail
 
 ZSH_BIN="${1:-$(command -v zsh 2>/dev/null || echo /bin/zsh)}"

@@ -5,7 +5,9 @@
 # on unset(PRIVILEGED) -- including Apple's own 666e91a ".zlogout" fix --
 # without ever touching the .zlogout-specific code at all.
 #
-# Must be run as root. Self-cleaning.
+# NOTE: Root is needed ONLY for test setup (creating a setuid binary).
+# The actual attack runs as an unprivileged user.
+# Must be run as root for test setup. Self-cleaning.
 #
 # Two runs for comparison:
 #   SCENARIO A (control):  -p session, exits normally        -> .zlogout blocked

@@ -8,7 +8,12 @@
 # The savehistfile() call at builtin.c:5873 (zexit path) is also NOT guarded.
 # HISTFILE is not a special parameter — no PM_DONTIMPORT_SUID protection.
 #
-# Must be run as root. Self-cleaning.
+# NOTE: Root is needed ONLY for test setup (creating a setuid binary, test user,
+# and root-owned target files to demonstrate the read/write primitives).
+# The actual attack runs entirely as the unprivileged user via `su`.
+# On a real system, zsh is already setuid and users already exist.
+#
+# Must be run as root for test setup. Self-cleaning.
 set -euo pipefail
 
 ZSH_BIN="${1:-$(command -v zsh 2>/dev/null || echo /bin/zsh)}"
